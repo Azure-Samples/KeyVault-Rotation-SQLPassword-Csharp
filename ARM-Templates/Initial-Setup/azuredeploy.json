@@ -44,6 +44,30 @@
 		  }
 	   },
 	   {  
+		  "type":"Microsoft.Sql/servers",
+		  "apiVersion":"2019-06-01-preview",
+		  "name":"[concat(parameters('resourceNamePrefix'),'-sql2')]",
+		  "location":"[resourceGroup().location]",
+		  "kind":"v12.0",
+		  "properties":{  
+			 "administratorLogin":"[parameters('sqlAdminLogin')]",
+			 "administratorLoginPassword":"Simple123",
+			 "version":"12.0"
+		  }
+	   },
+	   {  
+		  "type":"Microsoft.Sql/servers/firewallRules",
+		  "apiVersion":"2019-06-01-preview",
+		  "name":"[concat(parameters('resourceNamePrefix'),'-sql2', '/AllowAllWindowsAzureIps')]",
+		  "dependsOn":[  
+			 "[resourceId('Microsoft.Sql/servers', concat(parameters('resourceNamePrefix'),'-sql2'))]"
+		  ],
+		  "properties":{  
+			 "startIpAddress":"0.0.0.0",
+			 "endIpAddress":"0.0.0.0"
+		  }
+	   },
+	   {  
 		  "type":"Microsoft.KeyVault/vaults",
 		  "apiVersion":"2018-02-14",
 		  "name":"[concat(parameters('resourceNamePrefix'),'-kv')]",
