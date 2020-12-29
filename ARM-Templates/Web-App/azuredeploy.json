@@ -1,0 +1,145 @@
+{  
+  "$schema":"https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion":"1.0.0.0",
+  "parameters":{  
+     "ResourceNamePrefix":{  
+        "defaultValue":"[resourceGroup().name]",
+        "type":"string",
+        "metadata":{  
+           "description":"Prefix for resource names."
+        }
+     },
+     "keyVaultName": {
+            "defaultValue": "akvrotation-kv",
+            "type": "String",
+            "metadata": {
+                "description": "Key Vault name where password is stored."
+            }
+     },
+     "sqlServerName": {
+            "defaultValue": "akvrotation-sql",
+            "type": "String",
+            "metadata": {
+                "description": "SQL server name with password to rotate."
+            }
+     },
+     "repoURL": {
+      "defaultValue": "https://github.com/jlichwa/KeyVault-Rotation-SQLPassword-Csharp-Webapp.git",
+      "type": "String",
+      "metadata": {
+            "description": "The URL for the GitHub repository that contains the project to deploy."
+     }
+   }
+  },
+  "variables":{},
+  "resources":[
+      {  
+        "type":"Microsoft.Web/serverfarms",
+        "apiVersion":"2018-02-01",
+        "name":"[concat(parameters('ResourceNamePrefix'),'-app')]",
+        "location":"[resourceGroup().location]",
+        "sku":{  
+           "name": "Y1",
+           "tier": "Dynamic"
+        },
+        "properties": {
+                "name": "[concat(parameters('ResourceNamePrefix'),'-app')]",
+                "computeMode": "Dynamic"
+        }
+     },
+     {  
+        "type":"Microsoft.Web/sites",
+        "apiVersion":"2018-11-01",
+        "name":"[concat(parameters('ResourceNamePrefix'),'-app')]",
+        "location":"[resourceGroup().location]",
+        "dependsOn":[  
+           "[resourceId('Microsoft.Web/serverfarms', concat(parameters('ResourceNamePrefix'),'-app'))]"
+        ],
+        "kind":"app",
+        "identity":{  
+           "type":"SystemAssigned"
+        },
+        "properties":{  
+           "enabled":true,
+           "hostNameSslStates":[  
+              {  
+                 "name":"[concat(parameters('ResourceNamePrefix'),'-app', '.azurewebsites.net')]",
+                 "sslState":"Disabled",
+                 "hostType":"Standard"
+              },
+              {  
+                 "name":"[concat(parameters('ResourceNamePrefix'),'-app', '.scm.azurewebsites.net')]",
+                 "sslState":"Disabled",
+                 "hostType":"Repository"
+              }
+           ],
+           "serverFarmId":"[resourceId('Microsoft.Web/serverfarms', concat(parameters('ResourceNamePrefix'),'-app'))]",
+           "reserved":false,
+           "isXenon":false,
+           "hyperV":false,
+           "scmSiteAlsoStopped":false,
+           "clientAffinityEnabled":true,
+           "clientCertEnabled":false,
+           "hostNamesDisabled":false,
+           "containerSize":0,
+           "dailyMemoryTimeQuota":0,
+           "httpsOnly":false,
+           "redundancyMode":"None",
+           "siteConfig":{  
+              "appSettings":[{}]
+           }
+        },
+        "resources": [
+                {
+                    "type": "sourcecontrols",
+                    "apiVersion": "2018-11-01",
+                    "name": "web",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/Sites', concat(parameters('ResourceNamePrefix'),'-app'))]"
+                    ],
+                    "properties": {
+                        "RepoUrl": "[parameters('repoURL')]",
+                        "branch": "master",
+                        "IsManualIntegration": true
+                    }
+                }
+            ]
+     },
+     {
+            "type": "Microsoft.Sql/servers/providers/roleAssignments",
+            "apiVersion": "2018-09-01-preview",
+            "name": "[concat(parameters('sqlServerName'), '/Microsoft.Authorization/', guid(uniqueString(parameters('sqlServerName'))))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', concat(parameters('ResourceNamePrefix'),'-app'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '6d8ee4ec-f05a-4a1d-8b00-a9b17e38b437')]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', concat(parameters('ResourceNamePrefix'),'-app')),'2019-08-01', 'Full').identity.principalId]"
+            }
+	  },
+     {
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "name": "[concat(parameters('keyVaultName'),'/add')]",
+      "apiVersion": "2018-02-14",
+      "dependsOn":[  
+         "[resourceId('Microsoft.Web/sites', concat(parameters('ResourceNamePrefix'),'-app'))]"
+      ],
+      "properties": {
+        "accessPolicies": [
+         {  
+            "tenantId":"[subscription().tenantId]",
+            "objectId": "[reference(resourceId('Microsoft.Web/sites', concat(parameters('ResourceNamePrefix'),'-app')),'2019-08-01', 'Full').identity.principalId]",
+            "permissions":{  
+               "keys":[],
+               "secrets":[  
+                  "Get",
+                  "List"
+               ],
+               "certificates":[]
+            }
+         }
+        ]
+      }
+    }
+  ]
+}

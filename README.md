@@ -1,57 +1,48 @@
-# Project Name
+# KeyVault-Rotation-SQLPassword-CSharp
 
-(short, 1-3 sentenced, description of the project)
+Functions generate random password, update sql server admin password, and store password in Key Vault as new version of the same secret.
 
 ## Features
 
 This project framework provides the following features:
 
-* Feature 1
-* Feature 2
-* ...
+* Rotation function for sql password triggered by Event Grid (AKVSQLRotation)
+
+* Rotation function for sql password triggered by HTTP call(AKVSQLRotationHttp)
+
+* ARM template for function deployment
+
+* ARM template for adding sql password  to existing function
+
 
 ## Getting Started
 
-### Prerequisites
+Functions generate random password, adds password Key Vault as new version of the same secret and updates password in SQL database.
 
-(ideally very short, if any)
+Functions require following information stored in secret as tags:
+$secret.Tags["ValidityPeriodDays"] - number of days, it defines expiration date for new secret
+$secret.Tags["CredentialId"] - SQL admin login
+$secret.Tags["ProviderAddress"] - SQL Server Resource Id
 
-- OS
-- Library version
-- ...
+You can create new secret with above tags and SQL Password as value or add those tags to existing secret. For automated rotation secret expiry date will also be required - it triggers 'SecretNearExpiry' event 30 days before expiry.
+
+There are two available functions performing same rotation:
+
+* AKVSQLRotation - event triggered function, performs sql password rotation triggered by Key Vault events. In this setup 'SecretNearExpiry' event is used which is published 30 days before secret expiration
+* AKVSQLRotationHttp - on-demand function with KeyVaultName and Secret name as parameters
+
+Functions are using Function App identity to access Key Vault and existing secret "CredentialId" tag with sql admin login and value with sql admin password to access SQL server.
 
 ### Installation
 
-(ideally very short)
 
-- npm install [package name]
-- mvn install
-- ...
+There are 3 ARM templates available:
 
-### Quickstart
-(Add steps to get up and running quickly)
-
-1. git clone [repository clone url]
-2. cd [respository name]
-3. ...
-
+* [Initial Setup](https://github.com/Azure-Samples/KeyVault-Rotation-SQLPassword-Csharp/tree/master/arm-templates#inital-setup)- Creates Key Vault and SQL database if needed. Existing Key Vault and SQL database  can be used instead
+* [Function Rotation - Complete Setup](https://github.com/Azure-Samples/KeyVault-Rotation-SQLPassword-Csharp/tree/master/arm-templates#azure-sql-password-rotation-functions) - It creates and deploys function app and function code, creates necessary permissions, and Key Vault event subscription for Near Expiry Event for individual secret.
+* [Adding additional secrets to existing function](https://github.com/Azure-Samples/KeyVault-Rotation-SQLPassword-Csharp/tree/master/arm-templates#add-event-subscription-to-existing-functions) - single function can be used for multiple sql database servers. This template creates new event subscription for the secret.
 
 ## Demo
 
-A demo app is included to show how to use the project.
-
-To run the demo, follow these steps:
-
-(Add steps to start up the demo)
-
-1.
-2.
-3.
-
-## Resources
-
-(Any additional resources or related projects)
-
-- Link to supporting information
-- Link to similar sample
-- ...
+You can find all steps in tutorial below:
+[Automate the rotation of a secret for resources that use one set of authentication credentials](https://docs.microsoft.com/azure/key-vault/secrets/tutorial-rotation)
