@@ -5,7 +5,8 @@ This template creates below components to help demonstrate Azure SQL password ro
 ### Inital Setup:
 
 - Key Vault
-- Azure SQL Server
+- Azure SQL Server 1
+- Azure SQL Server 2
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FKeyVault-Rotation-SQLPassword-Csharp%2Fmain%2FARM-Templates%2FInitial-Setup%2Fazuredeploy.json" target="_blank">
     <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png"/>
