@@ -35,7 +35,6 @@ Functions are using Function App identity to access Key Vault and existing secre
 
 ### Installation
 
-
 There are 3 ARM templates available:
 
 * [Initial Setup](https://github.com/Azure-Samples/KeyVault-Rotation-SQLPassword-Csharp/tree/main/ARM-Templates#inital-setup)- Creates Key Vault and SQL database if needed. Existing Key Vault and SQL database  can be used instead
