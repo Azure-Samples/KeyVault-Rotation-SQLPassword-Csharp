@@ -31,7 +31,7 @@
             }
         },
         "repoURL": {
-            "defaultValue": "https://github.com/jlichwa/KeyVault-Rotation-SQLPassword-Csharp.git",
+            "defaultValue": "https://github.com/Azure-Samples/KeyVault-Rotation-SQLPassword-Csharp.git",
             "type": "String",
             "metadata": {
                 "description": "The URL for the GitHub repository that contains the project to deploy."
