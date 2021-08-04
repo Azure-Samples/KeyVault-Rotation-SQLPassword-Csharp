@@ -1,10 +1,8 @@
 // Default URL for triggering event grid function in the local environment.
 // http://localhost:7071/runtime/webhooks/EventGrid?functionName={functionname}
-using Azure.Security.KeyVault.Secrets;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
-using Microsoft.Azure.EventGrid.Models;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
+using Azure.Messaging.EventGrid;
 using Microsoft.Azure.WebJobs;
 using System.Text.RegularExpressions;
 
