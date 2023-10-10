@@ -20,9 +20,9 @@ This project framework provides the following features:
 Functions generate random password, adds password Key Vault as new version of the same secret and updates password in SQL database.
 
 Functions require following information stored in secret as tags:
-$secret.Tags["ValidityPeriodDays"] - number of days, it defines expiration date for new secret
-$secret.Tags["CredentialId"] - SQL admin login
-$secret.Tags["ProviderAddress"] - SQL Server Resource Id
+* $secret.Tags["ValidityPeriodDays"] - number of days, it defines expiration date for new secret
+* $secret.Tags["CredentialId"] - SQL admin login
+* $secret.Tags["ProviderAddress"] - SQL Server Resource Id
 
 You can create new secret with above tags and SQL Password as value or add those tags to existing secret. For automated rotation secret expiry date will also be required - it triggers 'SecretNearExpiry' event 30 days before expiry.
 
